@@ -345,6 +345,10 @@ class SettingsApi {
 
 	/**
 	 * Sanitize callback for Settings API fields.
+	 *
+	 * @param array $fields The fields array to sanitize.
+	 *
+	 * @return array
 	 */
 	public function sanitize_fields( $fields ) {
 		foreach ( $fields as $field_slug => $field_value ) {
@@ -361,39 +365,12 @@ class SettingsApi {
 	}
 
 	/**
-	 * General Sanitize callback for a field, uses the field config to get the type of field.
-	 *
-	 * @param $field_value The value from the field to be sanitized.
-	 * @param $field_config The type of field.
-	 *
-	 * @return string $field_value The sanitized field value.
-	 */
-	public function sanitize_field( $field_value, $field_config ) {
-		$type = $field_config['type'];
-
-		switch ( $type ) {
-			case 'checkbox':
-				return $field_value == 'on' ? 'on' : 'off';
-			case 'number':
-				return ( is_numeric( $field_value ) ) ? $field_value : 0;
-			case 'textarea':
-				return wp_kses_post( $field_value );
-			case 'email':
-				return sanitize_email( $field_value );
-			case 'url':
-				return esc_url_raw( $field_value );
-			default:
-				return ! empty( $field_value ) ? sanitize_text_field( $field_value ) : '';
-		}
-	}
-
-	/**
 	 * Get sanitization callback for given option slug
 	 *
 	 * @param string $slug option slug.
 	 * @return mixed string | bool false
 	 */
-	function get_sanitize_callback( $slug = '' ) {
+	public function get_sanitize_callback( $slug = '' ) {
 		if ( empty( $slug ) ) {
 			return false;
 		}
@@ -401,7 +378,7 @@ class SettingsApi {
 		// Iterate over registered fields and see if we can find proper callback.
 		foreach ( $this->fields_array as $section => $field_array ) {
 			foreach ( $field_array as $field ) {
-				if ( $field['name'] != $slug ) {
+				if ( $field['name'] !== $slug ) {
 					continue;
 				}
 
@@ -442,15 +419,15 @@ class SettingsApi {
 	 *
 	 * @return void
 	 */
-	function callback_title( $args ) {
+	public function callback_title( $args ) {
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		if ( '' !== $args['name'] ) {
 			$name = $args['name'];
-		} else {
-		};
+		}
 		$type = isset( $args['type'] ) ? $args['type'] : 'title';
 
 		$html = '';
+
 		echo $html;
 	}
 
@@ -459,7 +436,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_text( $args ) {
+	public function callback_text( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'], $args['placeholder'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -476,7 +453,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_url( $args ) {
+	public function callback_url( $args ) {
 		$this->callback_text( $args );
 	}
 
@@ -485,7 +462,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_email( $args ) {
+	public function callback_email( $args ) {
 		$this->callback_text( $args );
 	}
 
@@ -494,7 +471,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_number( $args ) {
+	public function callback_number( $args ) {
 		$this->callback_text( $args );
 	}
 
@@ -503,7 +480,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_checkbox( $args ) {
+	public function callback_checkbox( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 
@@ -522,7 +499,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_multicheck( $args ) {
+	public function callback_multicheck( $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 
@@ -544,7 +521,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_radio( $args ) {
+	public function callback_radio( $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 
@@ -565,7 +542,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_select( $args ) {
+	public function callback_select( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -585,7 +562,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_textarea( $args ) {
+	public function callback_textarea( $args ) {
 
 		$value = esc_textarea( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -600,9 +577,10 @@ class SettingsApi {
 	 * Displays a textarea for a settings field
 	 *
 	 * @param array $args settings field args.
-	 * @return string
+	 *
+	 * @return void
 	 */
-	function callback_html( $args ) {
+	public function callback_html( $args ) {
 		echo $this->get_field_description( $args );
 	}
 
@@ -611,12 +589,12 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args.
 	 */
-	function callback_wysiwyg( $args ) {
+	public function callback_wysiwyg( $args ) {
 
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : '500px';
 
-		echo '<div style="max-width: ' . $size . ';">';
+		echo '<div style="max-width: ' . esc_attr( $size ) . ';">';
 
 		$editor_settings = [
 			'teeny'         => true,
@@ -639,7 +617,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args.
 	 */
-	function callback_file( $args ) {
+	public function callback_file( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -660,7 +638,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args.
 	 */
-	function callback_image( $args ) {
+	public function callback_image( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -682,7 +660,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_password( $args ) {
+	public function callback_password( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -698,7 +676,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_color( $args ) {
+	public function callback_color( $args ) {
 
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'], $args['placeholder'] ) );
 		$size  = isset( $args['size'] ) && ! is_null( $args['size'] ) ? $args['size'] : 'regular';
@@ -714,7 +692,7 @@ class SettingsApi {
 	 *
 	 * @param array $args settings field args
 	 */
-	function callback_separator( $args ) {
+	public function callback_separator( $args ) {
 		$type = isset( $args['type'] ) ? $args['type'] : 'separator';
 
 		$html  = '';
@@ -730,7 +708,7 @@ class SettingsApi {
 	 * @param string $default default text if it's not found.
 	 * @return string
 	 */
-	function get_option( $option, $section, $default = '' ) {
+	public function get_option( $option, $section, $default = '' ) {
 
 		$options = get_option( $section );
 
@@ -743,12 +721,6 @@ class SettingsApi {
 
 	/**
 	 * Add submenu page to the Settings main menu.
-	 *
-	 * @param string $page_title
-	 * @param string $menu_title
-	 * @param string $capability
-	 * @param string $menu_slug
-	 * @param callable $function = ''
 	 */
 	public function admin_menu() {
 		add_options_page(
@@ -849,10 +821,10 @@ class SettingsApi {
 				// Switches option sections
 				$( '.group' ).hide();
 				var activetab = '';
-				if ( 'undefined' != typeof localStorage ) {
+				if ( 'undefined' !== typeof localStorage ) {
 					activetab = localStorage.getItem( 'activetab' );
 				}
-				if ( '' != activetab && $( activetab ).length ) {
+				if ( '' !== activetab && $( activetab ).length ) {
 					$( activetab ).fadeIn();
 				} else {
 					$( '.group:first' ).fadeIn();
@@ -875,7 +847,7 @@ class SettingsApi {
 						});
 				});
 
-				if ( '' != activetab && $( activetab + '-tab' ).length ) {
+				if ( '' !== activetab && $( activetab + '-tab' ).length ) {
 					$( activetab + '-tab' ).addClass( 'nav-tab-active' );
 				} else {
 					$( '.nav-tab-wrapper a:first' ).addClass( 'nav-tab-active' );
