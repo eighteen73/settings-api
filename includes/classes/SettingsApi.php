@@ -5,7 +5,7 @@
  * @package Eighteen73
  */
 
-namespace Eighteen73;
+namespace Eighteen73\SettingsApi;
 
 /**
  * Main Class file for creating a settings page.

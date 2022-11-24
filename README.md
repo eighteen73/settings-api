@@ -5,6 +5,9 @@ Allows for easier creation of plugin settings pages by using an object orianted 
 ## An example
 
 ```php
+
+use Eighteen73\SettingsApi\SettingsApi;
+
 $settings = new SettingsApi(
 	'Plugin Settings',
 	'Plugin Settings',
