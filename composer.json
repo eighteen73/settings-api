@@ -1,0 +1,29 @@
+{
+  "name": "eighteen73/settings-api",
+  "description": "A helper class for registering WordPress settings pages with a simpler API.",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Eighteen73\\": "includes/classes/"
+    }
+  },
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "eighteen73/phpcs-composer": "^1.0.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "composer/installers": true
+    }
+  },
+  "scripts": {
+    "test": [
+      "phpcs"
+    ]
+  }
+}
