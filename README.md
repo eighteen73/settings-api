@@ -4,7 +4,7 @@ Allows for easier creation of plugin settings pages by using an object orianted 
 
 ## An example
 
-```
+```php
 $settings = new SettingsApi(
 	'Plugin Settings',
 	'Plugin Settings',
