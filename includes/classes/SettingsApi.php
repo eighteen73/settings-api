@@ -836,9 +836,9 @@ class SettingsApi {
 					activetab = localStorage.getItem( 'activetab' );
 				}
 				if ( '' !== activetab && $( activetab ).length ) {
-					$( activetab ).fadeIn();
+					$( activetab ).show();
 				} else {
-					$( '.group:first' ).fadeIn();
+					$( '.group:first' ).show();
 				}
 				$( '.group .collapsed' ).each( function() {
 					$( this )
@@ -873,7 +873,7 @@ class SettingsApi {
 						localStorage.setItem( 'activetab', $( this ).attr( 'href' ) );
 					}
 					$( '.group' ).hide();
-					$( clicked_group ).fadeIn();
+					$( clicked_group ).show();
 					evt.preventDefault();
 				});
 
