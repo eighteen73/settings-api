@@ -12,7 +12,8 @@ $settings = new SettingsApi(
 	'Plugin Settings',
 	'Plugin Settings',
 	'manage_options',
-	'plugin-name'
+	'plugin-name',
+	100,
 );
 
 // Section: Basic Settings.
@@ -145,6 +146,27 @@ $settings->add_field(
 		'options' => [
 			'yes' => 'Yes',
 			'no'  => 'No',
+		],
+	]
+);
+
+// Field: Multicheck with descriptions.
+$settings->add_field(
+	'plugin_name_basic',
+	[
+		'id'      => 'multicheck_descriptions',
+		'type'    => 'multicheck',
+		'name'    => __( 'Multile checkbox with descriptions', 'plugin-name' ),
+		'desc'    => __( 'Multile checkbox description', 'plugin-name' ),
+		'options' => [
+			'yes' => [
+				'label' => 'Yes',
+				'desc'  => 'Description of option',
+			],
+			'no' => [
+				'label' => 'No',
+				'desc'  => 'Description of option',
+			],
 		],
 	]
 );
