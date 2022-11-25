@@ -19,14 +19,12 @@ class SettingsApi {
 	 */
 	private $page_title;
 
-
 	/**
 	 * Menu title for the settings page.
 	 *
 	 * @var string
 	 */
 	private $menu_title;
-
 
 	/**
 	 * Capability for the settings page.
@@ -41,6 +39,13 @@ class SettingsApi {
 	 * @var string
 	 */
 	private $slug;
+
+	/**
+	 * Menu position for the settings page.
+	 *
+	 * @var int
+	 */
+	private $position;
 
 	/**
 	 * Sections array.
@@ -63,14 +68,16 @@ class SettingsApi {
 	 * @param string $menu_title Menu title for the settings page.
 	 * @param string $capability Capability for the settings page.
 	 * @param string $slug Slug for the settings page.
+	 * @param int    $position Menu position for the settings page.
 	 */
-	public function __construct( $page_title, $menu_title, $capability, $slug ) {
+	public function __construct( $page_title, $menu_title, $capability, $slug, $position ) {
 
 		// Set variables.
 		$this->page_title = $page_title;
 		$this->menu_title = $menu_title;
 		$this->capability = $capability;
 		$this->slug       = $slug;
+		$this->position   = $position;
 
 		// Enqueue the admin scripts.
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
@@ -485,9 +492,9 @@ class SettingsApi {
 		$value = esc_attr( $this->get_option( $args['id'], $args['section'], $args['std'] ) );
 
 		$html  = '<fieldset>';
-		$html .= sprintf( '<label for="plugin-name-%1$s[%2$s]">', $args['section'], $args['id'] );
+		$html .= sprintf( '<label for="' . $this->slug . '%1$s[%2$s]">', $args['section'], $args['id'] );
 		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="off" />', $args['section'], $args['id'] );
-		$html .= sprintf( '<input type="checkbox" class="checkbox" id="plugin-name-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s />', $args['section'], $args['id'], checked( $value, 'on', false ) );
+		$html .= sprintf( '<input type="checkbox" class="checkbox" id="' . $this->slug . '-%1$s[%2$s]" name="%1$s[%2$s]" value="on" %3$s />', $args['section'], $args['id'], checked( $value, 'on', false ) );
 		$html .= sprintf( '%1$s</label>', $args['desc'] );
 		$html .= '</fieldset>';
 
@@ -504,11 +511,14 @@ class SettingsApi {
 		$value = $this->get_option( $args['id'], $args['section'], $args['std'] );
 
 		$html = '<fieldset>';
-		foreach ( $args['options'] as $key => $label ) {
+		foreach ( $args['options'] as $key => $value ) {
+			$label   = is_array( $value ) ? $value['label'] : $value;
 			$checked = isset( $value[ $key ] ) ? $value[ $key ] : '0';
-			$html   .= sprintf( '<label for="plugin-name-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-			$html   .= sprintf( '<input type="checkbox" class="checkbox" id="plugin-name-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
+
+			$html   .= sprintf( '<label for="' . $this->slug . '-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
+			$html   .= sprintf( '<input type="checkbox" class="checkbox" id="' . $this->slug . '-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
 			$html   .= sprintf( '%1$s</label><br>', $label );
+			$html   .= $this->get_field_description( $value );
 		}
 		$html .= $this->get_field_description( $args );
 		$html .= '</fieldset>';
@@ -527,8 +537,8 @@ class SettingsApi {
 
 		$html = '<fieldset>';
 		foreach ( $args['options'] as $key => $label ) {
-			$html .= sprintf( '<label for="plugin-name-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-			$html .= sprintf( '<input type="radio" class="radio" id="plugin-name-%1$s[%2$s][%3$s]" name="%1$s[%2$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $value, $key, false ) );
+			$html .= sprintf( '<label for="' . $this->slug . '-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
+			$html .= sprintf( '<input type="radio" class="radio" id="' . $this->slug . '-%1$s[%2$s][%3$s]" name="%1$s[%2$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $value, $key, false ) );
 			$html .= sprintf( '%1$s</label><br>', $label );
 		}
 		$html .= $this->get_field_description( $args );
@@ -728,7 +738,8 @@ class SettingsApi {
 			$this->menu_title,
 			$this->capability,
 			$this->slug,
-			[ $this, 'plugin_page' ]
+			[ $this, 'plugin_page' ],
+			$this->position,
 		);
 	}
 
@@ -930,8 +941,16 @@ class SettingsApi {
 					left: 0;
 					width: 99%;
 				}
+
 				.group .form-table input.color-picker {
 					max-width: 100px;
+				}
+
+				/**
+				 * Space for multi checkbox and multi radio fields with their own descriptions.
+				 */
+				.group .form-table .description + label {
+					margin-top: 20px !important;
 				}
 			</style>
 		<?php
