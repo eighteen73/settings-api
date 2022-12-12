@@ -818,6 +818,10 @@ class SettingsApi {
 	 * Adds submenus.
 	 */
 	public function admin_submenus() {
+		if ( ! $this->top_level ) {
+			return;
+		}
+
 		if ( empty( $this->submenus_array ) || ! is_array( $this->submenus_array ) ) {
 			return;
 		}
