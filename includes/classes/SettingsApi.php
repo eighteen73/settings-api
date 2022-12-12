@@ -68,7 +68,7 @@ class SettingsApi {
 	 * @param string $menu_title Menu title for the settings page.
 	 * @param string $capability Capability for the settings page.
 	 * @param string $slug Slug for the settings page.
-	 * @param int    $position Menu position for the settings page.
+	 * @param int|null $position Menu position for the settings page.
 	 */
 	public function __construct( $page_title, $menu_title, $capability, $slug, $position = null ) {
 
