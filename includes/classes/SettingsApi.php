@@ -34,6 +34,13 @@ class SettingsApi {
 	private $capability;
 
 	/**
+	 * Slug for the menu page.
+	 *
+	 * @var string
+	 */
+	private $icon_url = '';
+
+	/**
 	 * Slug for the settings page.
 	 *
 	 * @var string
@@ -46,6 +53,20 @@ class SettingsApi {
 	 * @var int|null
 	 */
 	private $position;
+
+	/**
+	 * If it's a top level menu.
+	 *
+	 * @var bool
+	 */
+	private $top_level;
+
+	/**
+	 * Submenus array.
+	 *
+	 * @var array
+	 */
+	private $submenus_array = [];
 
 	/**
 	 * Sections array.
@@ -64,13 +85,14 @@ class SettingsApi {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $page_title Page title for the settings page.
-	 * @param string $menu_title Menu title for the settings page.
-	 * @param string $capability Capability for the settings page.
-	 * @param string $slug Slug for the settings page.
-	 * @param int|null $position Menu position for the settings page.
+	 * @param string   $page_title  Page title for the settings page.
+	 * @param string   $menu_title  Menu title for the settings page.
+	 * @param string   $capability  Capability for the settings page.
+	 * @param string   $slug        Slug for the settings page.
+	 * @param int|null $position    Menu position for the settings page.
+	 * @param bool     $top_level   If it's a top level menu.
 	 */
-	public function __construct( $page_title, $menu_title, $capability, $slug, $position = null ) {
+	public function __construct( $page_title, $menu_title, $capability, $slug, $position = null, $top_level = false ) {
 
 		// Set variables.
 		$this->page_title = $page_title;
@@ -78,6 +100,7 @@ class SettingsApi {
 		$this->capability = $capability;
 		$this->slug       = $slug;
 		$this->position   = $position;
+		$this->top_level  = $top_level;
 
 		// Enqueue the admin scripts.
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
@@ -87,6 +110,9 @@ class SettingsApi {
 
 		// Menu.
 		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
+
+		// Submenus.
+		add_action( 'admin_menu', [ $this, 'admin_submenus' ] );
 	}
 
 	/**
@@ -731,17 +757,82 @@ class SettingsApi {
 	}
 
 	/**
-	 * Add submenu page to the Settings main menu.
+	 * Sets a menu page icon url.
+	 *
+	 * @param string $icon_url
+	 */
+	public function set_icon_url( $icon_url = '' ) {
+		$this->icon_url = esc_attr( $icon_url );
+	}
+
+	/**
+	 * Adds menu/submenu page.
 	 */
 	public function admin_menu() {
-		add_options_page(
-			$this->page_title,
-			$this->menu_title,
-			$this->capability,
-			$this->slug,
-			[ $this, 'plugin_page' ],
-			$this->position,
+		if ( $this->top_level ) {
+			add_menu_page(
+				$this->page_title,
+				$this->menu_title,
+				$this->capability,
+				$this->slug,
+				[ $this, 'plugin_page' ],
+				$this->icon_url,
+				$this->position,
+			);
+		} else {
+			add_options_page(
+				$this->page_title,
+				$this->menu_title,
+				$this->capability,
+				$this->slug,
+				[ $this, 'plugin_page' ],
+				$this->position,
+			);
+		}
+	}
+
+	/**
+	 * Sets a submenu.
+	 *
+	 * @param string    $page_title
+	 * @param string    $menu_title
+	 * @param string    $menu_slug
+	 * @param array     $callback
+	 * @param int|null  $position
+	 */
+	public function set_submenu( $page_title, $menu_title, $menu_slug, $callback, $position = null ) {
+		if ( empty( $page_title ) || empty( $menu_title ) || empty( $menu_slug ) || empty( $callback ) || ! is_array( $callback ) ) {
+			return;
+		}
+
+		$this->submenus_array[] = array(
+			'page_title' => esc_attr( $page_title ),
+			'menu_title' => esc_attr( $menu_title ),
+			'menu_slug'  => esc_attr( $menu_slug ),
+			'callback'   => $callback,
+			'position'   => ! empty( $position ) ? absint( $position ) : null,
 		);
+	}
+
+	/**
+	 * Adds submenus.
+	 */
+	public function admin_submenus() {
+		if ( empty( $this->submenus_array ) || ! is_array( $this->submenus_array ) ) {
+			return;
+		}
+
+		foreach ( $this->submenus_array as $submenu ) {
+			add_submenu_page(
+				$this->slug,
+				$submenu['page_title'],
+				$submenu['menu_title'],
+				$this->capability,
+				$submenu['menu_slug'],
+				$submenu['callback'],
+				$submenu['position']
+			);
+		}
 	}
 
 	/**
