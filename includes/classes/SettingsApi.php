@@ -43,7 +43,7 @@ class SettingsApi {
 	/**
 	 * Menu position for the settings page.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private $position;
 
@@ -68,15 +68,16 @@ class SettingsApi {
 	 * @param string $menu_title Menu title for the settings page.
 	 * @param string $capability Capability for the settings page.
 	 * @param string $slug Slug for the settings page.
-	 * @param int    $position Menu position for the settings page.
+	 * @param int|null $position Menu position for the settings page.
 	 */
-	public function __construct( $page_title, $menu_title, $capability, $slug ) {
+	public function __construct( $page_title, $menu_title, $capability, $slug, $position = null ) {
 
 		// Set variables.
 		$this->page_title = $page_title;
 		$this->menu_title = $menu_title;
 		$this->capability = $capability;
 		$this->slug       = $slug;
+		$this->position   = $position;
 
 		// Enqueue the admin scripts.
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
