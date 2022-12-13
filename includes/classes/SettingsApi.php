@@ -92,15 +92,16 @@ class SettingsApi {
 	 * @param int|null $position    Menu position for the settings page.
 	 * @param bool     $top_level   If it's a top level menu.
 	 */
-	public function __construct( $page_title, $menu_title, $capability, $slug, $position = null, $top_level = false ) {
+	public function __construct( $page_title, $menu_title, $capability, $slug, $position = null, $top_level = false, $icon_url = '' ) {
 
 		// Set variables.
-		$this->page_title = $page_title;
-		$this->menu_title = $menu_title;
-		$this->capability = $capability;
-		$this->slug       = $slug;
-		$this->position   = $position;
+		$this->page_title = esc_attr( $page_title );
+		$this->menu_title = esc_attr( $menu_title );
+		$this->capability = esc_attr( $capability );
+		$this->slug       = esc_attr( $slug );
+		$this->position   = ! empty( $position ) ? intval( $position ) : null;
 		$this->top_level  = $top_level;
+		$this->icon_url   = esc_attr( $icon_url );
 
 		// Enqueue the admin scripts.
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
@@ -757,15 +758,6 @@ class SettingsApi {
 	}
 
 	/**
-	 * Sets a menu page icon url.
-	 *
-	 * @param string $icon_url
-	 */
-	public function set_icon_url( $icon_url = '' ) {
-		$this->icon_url = esc_attr( $icon_url );
-	}
-
-	/**
 	 * Adds menu/submenu page.
 	 */
 	public function admin_menu() {
@@ -805,13 +797,13 @@ class SettingsApi {
 			return;
 		}
 
-		$this->submenus_array[] = array(
+		$this->submenus_array[] = [
 			'page_title' => esc_attr( $page_title ),
 			'menu_title' => esc_attr( $menu_title ),
 			'menu_slug'  => esc_attr( $menu_slug ),
 			'callback'   => $callback,
-			'position'   => ! empty( $position ) ? absint( $position ) : null,
-		);
+			'position'   => ! empty( $position ) ? intval( $position ) : null,
+		];
 	}
 
 	/**
