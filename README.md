@@ -14,6 +14,16 @@ $settings = new SettingsApi(
 	'manage_options',
 	'plugin-name',
 	100,
+	false, // set it to 'true' to create a top level menu
+	''     // icon url to be used on top level menu
+);
+
+// Submenus: if top level menu is created.
+$settings->set_submenu(
+	'Submenu 1',
+	'Submenu 1',
+	'plugin-name-submenu',
+	[ $this, 'callback_function' ]
 );
 
 // Section: Basic Settings.
