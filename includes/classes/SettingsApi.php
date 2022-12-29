@@ -791,18 +791,20 @@ class SettingsApi {
 	 * @param string    $menu_slug
 	 * @param array     $callback
 	 * @param int|null  $position
+	 * @param bool      $use_parent_slug
 	 */
-	public function set_submenu( $page_title, $menu_title, $menu_slug, $callback, $position = null ) {
+	public function set_submenu( $page_title, $menu_title, $menu_slug, $callback, $position = null, $use_parent_slug = true ) {
 		if ( empty( $page_title ) || empty( $menu_title ) || empty( $menu_slug ) || empty( $callback ) || ! is_array( $callback ) ) {
 			return;
 		}
 
 		$this->submenus_array[] = [
-			'page_title' => esc_attr( $page_title ),
-			'menu_title' => esc_attr( $menu_title ),
-			'menu_slug'  => esc_attr( $menu_slug ),
-			'callback'   => $callback,
-			'position'   => ! empty( $position ) ? intval( $position ) : null,
+			'parent_slug' => true === $use_parent_slug ? $this->slug : null,
+			'page_title'  => esc_attr( $page_title ),
+			'menu_title'  => esc_attr( $menu_title ),
+			'menu_slug'   => esc_attr( $menu_slug ),
+			'callback'    => $callback,
+			'position'    => ! empty( $position ) ? intval( $position ) : null,
 		];
 	}
 
@@ -820,7 +822,7 @@ class SettingsApi {
 
 		foreach ( $this->submenus_array as $submenu ) {
 			add_submenu_page(
-				$this->slug,
+				$submenu['parent_slug'],
 				$submenu['page_title'],
 				$submenu['menu_title'],
 				$this->capability,
@@ -837,8 +839,8 @@ class SettingsApi {
 	 * @return void
 	 */
 	public function plugin_page() {
-		echo '<div class="wrap">';
-		echo '<h1>' . $this->page_title . '</h1>';
+		echo '<div class="wrap '.$this->slug.'-wrap">';
+		echo '<h1 id="'.$this->slug.'-title">' . $this->page_title . '</h1>';
 		$this->show_navigation();
 		$this->show_forms();
 		echo '</div>';
@@ -852,7 +854,7 @@ class SettingsApi {
 	 * @return void
 	 */
 	public function show_navigation() {
-		$html = '<h2 class="nav-tab-wrapper">';
+		$html = '<h2 class="nav-tab-wrapper '.$this->slug.'-nav">';
 
 		foreach ( $this->sections_array as $tab ) {
 			$html .= sprintf( '<a href="#%1$s" class="nav-tab" id="%1$s-tab">%2$s</a>', $tab['id'], $tab['title'] );
