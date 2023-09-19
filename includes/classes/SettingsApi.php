@@ -91,6 +91,7 @@ class SettingsApi {
 	 * @param string   $slug        Slug for the settings page.
 	 * @param int|null $position    Menu position for the settings page.
 	 * @param bool     $top_level   If it's a top level menu.
+	 * @param string   $icon_url    URL to use for an icon.
 	 */
 	public function __construct( $page_title, $menu_title, $capability, $slug, $position = null, $top_level = false, $icon_url = '' ) {
 
@@ -251,8 +252,8 @@ class SettingsApi {
 				$section['desc'] = '<div class="inside">' . $section['desc'] . '</div>';
 
 				// Create the callback for description.
-				$callback = function() use ( $section ) {
-					echo str_replace( '"', '\"', $section['desc'] );
+				$callback = function () use ( $section ) {
+					echo wp_kses_post( str_replace( '"', '\"', $section['desc'] ) );
 				};
 
 			} elseif ( isset( $section['callback'] ) ) {
@@ -349,7 +350,7 @@ class SettingsApi {
 				 * @param array    $args = [)
 				 */
 
-				// @param string 	$id
+				// @param string    $id
 				$field_id = $section . '[' . $field['id'] . ']';
 
 				add_settings_field(
@@ -374,7 +375,6 @@ class SettingsApi {
 			 */
 			register_setting( $section['id'], $section['id'], [ $this, 'sanitize_fields' ] );
 		} // foreach ended.
-
 	} // admin_init() ended.
 
 	/**
@@ -462,7 +462,7 @@ class SettingsApi {
 
 		$html = '';
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -479,7 +479,7 @@ class SettingsApi {
 		$html  = sprintf( '<input type="%1$s" class="%2$s-text" id="%3$s[%4$s]" name="%3$s[%4$s]" value="%5$s"placeholder="%6$s"/>', $type, $size, $args['section'], $args['id'], $value, $args['placeholder'] );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -525,7 +525,7 @@ class SettingsApi {
 		$html .= sprintf( '%1$s</label>', $args['desc'] );
 		$html .= '</fieldset>';
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -543,15 +543,15 @@ class SettingsApi {
 			$label   = is_array( $item ) ? $item['label'] : $item;
 			$checked = isset( $value[ $key ] ) ? $value[ $key ] : '0';
 
-			$html   .= sprintf( '<label for="' . $this->slug . '-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
-			$html   .= sprintf( '<input type="checkbox" class="checkbox" id="' . $this->slug . '-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
-			$html   .= sprintf( '%1$s</label><br>', $label );
-			$html   .= $this->get_field_description( $item );
+			$html .= sprintf( '<label for="' . $this->slug . '-%1$s[%2$s][%3$s]">', $args['section'], $args['id'], $key );
+			$html .= sprintf( '<input type="checkbox" class="checkbox" id="' . $this->slug . '-%1$s[%2$s][%3$s]" name="%1$s[%2$s][%3$s]" value="%3$s" %4$s />', $args['section'], $args['id'], $key, checked( $checked, $key, false ) );
+			$html .= sprintf( '%1$s</label><br>', $label );
+			$html .= $this->get_field_description( $item );
 		}
 		$html .= $this->get_field_description( $args );
 		$html .= '</fieldset>';
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -572,7 +572,7 @@ class SettingsApi {
 		$html .= $this->get_field_description( $args );
 		$html .= '</fieldset>';
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -592,7 +592,7 @@ class SettingsApi {
 		$html .= sprintf( '</select>' );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -608,7 +608,7 @@ class SettingsApi {
 		$html  = sprintf( '<textarea rows="5" cols="55" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]">%4$s</textarea>', $size, $args['section'], $args['id'], $value );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -619,7 +619,7 @@ class SettingsApi {
 	 * @return void
 	 */
 	public function callback_html( $args ) {
-		echo $this->get_field_description( $args );
+		echo wp_kses_post( $this->get_field_description( $args ) );
 	}
 
 	/**
@@ -647,7 +647,7 @@ class SettingsApi {
 
 		echo '</div>';
 
-		echo $this->get_field_description( $args );
+		echo wp_kses_post( $this->get_field_description( $args ) );
 	}
 
 	/**
@@ -668,7 +668,7 @@ class SettingsApi {
 		$html .= '<input type="button" class="button eighteen73-browse" value="' . $label . '" />';
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -690,7 +690,7 @@ class SettingsApi {
 		$html .= $this->get_field_description( $args );
 		$html .= '<p class="eighteen73-image-preview"><img src=""/></p>';
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -706,7 +706,7 @@ class SettingsApi {
 		$html  = sprintf( '<input type="password" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s"/>', $size, $args['section'], $args['id'], $value );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -722,7 +722,7 @@ class SettingsApi {
 		$html  = sprintf( '<input type="text" class="%1$s-text color-picker" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" data-default-color="%5$s" placeholder="%6$s" />', $size, $args['section'], $args['id'], $value, $args['std'], $args['placeholder'] );
 		$html .= $this->get_field_description( $args );
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
@@ -735,18 +735,18 @@ class SettingsApi {
 
 		$html  = '';
 		$html .= '<div class="eighteen73-settings-separator"></div>';
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
 	 * Get the value of a settings field
 	 *
-	 * @param string $option  settings field name.
-	 * @param string $section the section name this field belongs to.
-	 * @param string $default default text if it's not found.
+	 * @param string $option   settings field name.
+	 * @param string $section  the section name this field belongs to.
+	 * @param string $fallback default text if it's not found.
 	 * @return string
 	 */
-	public function get_option( $option, $section, $default = '' ) {
+	public function get_option( $option, $section, $fallback = '' ) {
 
 		$options = get_option( $section );
 
@@ -754,7 +754,7 @@ class SettingsApi {
 			return $options[ $option ];
 		}
 
-		return $default;
+		return $fallback;
 	}
 
 	/**
@@ -786,11 +786,11 @@ class SettingsApi {
 	/**
 	 * Sets a submenu.
 	 *
-	 * @param string    $page_title
-	 * @param string    $menu_title
-	 * @param string    $menu_slug
-	 * @param array     $callback
-	 * @param int|null  $position
+	 * @param string   $page_title Page title for the submenu page.
+	 * @param string   $menu_title Menu title for the submenu page.
+	 * @param string   $menu_slug  Slug for the settings page.
+	 * @param array    $callback The callback for the submenu.
+	 * @param int|null $position Menu position for the submenu page.
 	 */
 	public function set_submenu( $page_title, $menu_title, $menu_slug, $callback, $position = null ) {
 		if ( empty( $page_title ) || empty( $menu_title ) || empty( $menu_slug ) || empty( $callback ) || ! is_array( $callback ) ) {
@@ -838,7 +838,7 @@ class SettingsApi {
 	 */
 	public function plugin_page() {
 		echo '<div class="wrap">';
-		echo '<h1>' . $this->page_title . '</h1>';
+		echo '<h1>' . esc_html( $this->page_title ) . '</h1>';
 		$this->show_navigation();
 		$this->show_forms();
 		echo '</div>';
@@ -860,7 +860,7 @@ class SettingsApi {
 
 		$html .= '</h2>';
 
-		echo $html;
+		echo wp_kses_post( $html );
 	}
 
 	/**
